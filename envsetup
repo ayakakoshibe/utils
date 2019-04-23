@@ -1,0 +1,57 @@
+# This builds a world's worst artistic interpretation of a ports tree, java
+# edition, under a ROOT (/tmp/ for now).
+#
+# /pkg/appliance-package/imports/ {PLIST, classfiles to add go here}
+#                       +src/     {extracted jarfile}
+#                       +jar/     {original jar}
+                        +INFO     {metadata}
+#      +core/ {same pattern as above}
+#      +{any other jars}
+#
+# It is used with a few commands. cd to pkg/<packagename>, and:
+#
+# pkgextract : extract jar under jar/ to src/
+# pkgpatch   : read in and add files under imports/ to src/
+# pkgjar     : turn the contents of src/ into a jarfile
+# pkginstall : install the jarfile
+# pkgclean   : wipe imports/, jarfile, redo src/ if "all"
+#
+# It is very specific to workproject.
+
+ROOT=/tmp
+
+ln -fs /usr/share/floodlight $HOME/fl
+ln -fs $HOME/fl/java $HOME/java
+ln -fs $HOME/fl/cli/desc/version200 $HOME/cmd
+ln -fs $HOME/fl/upgrade-utils $HOME/upg
+
+geninfo() {
+   printf 'PKGNAME=%s\n' $(ls $1/jar/) > $1/INFO
+}
+
+cd $ROOT
+# jars have names of this format:
+# floodlight-core-51.0.0-master-SNAPSHOT.jar
+# the "core" is the application name to use for the tree, added below.
+mkdir -p pkg/appliance-package \
+         pkg/core
+
+cd pkg
+for i in *; do
+    mkdir -p $i/imports $i/src $i/jar
+    cp $HOME/java/floodlight-$i-*.jar $i/jar/
+    geninfo $i
+    cd $i/src/
+    jar -xf ../jar/floodlight-$i-*.jar
+    cd - 1>/dev/null
+done
+
+if [ -z "$(which strace)" ]; then
+    sudo apt-get update && sudo apt-get install strace
+    sudo chmod a+w $HOME/upg/* $HOME/cmd/*
+fi
+
+if [ -f "$HOME/devcmds" ]; then
+    cp $HOME/.bashrc $HOME/.bashrc.old
+    cat $HOME/devcmds >> $HOME/.bashrc
+fi
