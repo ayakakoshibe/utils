@@ -4,17 +4,17 @@
 # /pkg/appliance-package/imports/ {PLIST, classfiles to add go here}
 #                       +src/     {extracted jarfile}
 #                       +jar/     {original jar}
-                        +INFO     {metadata}
+#                       +INFO     {metadata}
 #      +core/ {same pattern as above}
 #      +{any other jars}
 #
 # It is used with a few commands. cd to pkg/<packagename>, and:
 #
-# pkgextract : extract jar under jar/ to src/
+# pkgextract : extract imported bundle to ./imports/
 # pkgpatch   : read in and add files under imports/ to src/
 # pkgjar     : turn the contents of src/ into a jarfile
 # pkginstall : install the jarfile
-# pkgclean   : wipe imports/, jarfile, redo src/ if "all"
+# pkgclean   : wipe jarfile and redo src/ if "all" also wipe ./imports/
 #
 # It is very specific to workproject.
 

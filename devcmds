@@ -1,18 +1,7 @@
 
 # added by envsetup #
 
-pkgextract () {
-    if [ "$1" = "-h" ]; then
-        printf '%s\n' 'extracts imported bundle in ./imports/ for patching'
-    fi
-
-    [ ! -d "imports" -o ! -d "jar" -o ! -d "src" ] && \
-        printf 'Not in a jar directory\n' && \
-        return
-
-    tar -xzf ./imports/*.tgz -C ./imports/
-    [ "$?" -ne 0 ] && printf "No imports\n" && return
-}
+JPATH=/usr/share/floodlight/java
 
 pkgpatch () {
     if [ "$1" = "-h" ]; then
@@ -29,9 +18,12 @@ pkgpatch () {
 
     while read l; do
         c=${l##*/}
-        p=${l%/*class}
+        p=${l%$c}
         [ -e "./src/$l" ] && org="$(md5sum ./src/$l)"
-        [ "$c" -a "$p" ] && mkdir -p ./src/$p && cp ./imports/$c ./src/$p
+        if [ "$c" -a "$p" ]; then
+            [ "$p" -a ! -d ./src/$p ] && mkdir -p ./src/$p
+            cp ./imports/$c ./src/$p
+        fi
         if [ "$org" ]; then
             printf 'replaced file:\n\t%s %s\n\t%s %s\n' $org "$(md5sum ./src/$l)" && \
             unset org
@@ -39,6 +31,28 @@ pkgpatch () {
             printf '%s\n' "added file: ./src/$l"
         fi
     done < ./imports/PLIST
+}
+
+pkgextract () {
+    if [ "$1" = "-h" ]; then
+        printf '%s\n' 'extracts imported bundle in ./imports/ for patching'
+    fi
+
+    [ ! -d "imports" -o ! -d "jar" -o ! -d "src" ] && \
+        printf 'Not in a jar directory\n' && \
+        return
+
+    tar -xzf ./imports/*.tgz -C ./imports/
+    [ "$1" = "patch" ] && pkgpatch
+}
+
+pkginstall () {
+    if [ "$1" = "-h" ]; then
+        printf '%s\n' 'installs jarfile for use'
+        return
+    fi
+
+    sudo cp *.jar $JPATH
 }
 
 pkgjar () {
@@ -54,15 +68,7 @@ pkgjar () {
     jar cvmf META-INF/MANIFEST.MF ../$PKGNAME *
     cd -
     unset PKGNAME
-}
-
-pkginstall () {
-    if [ "$1" = "-h" ]; then
-        printf '%s\n' 'installs jarfile for use'
-        return
-    fi
-
-    sudo cp *.jar $HOME/java/
+    [ "$1" = "install" ] && pkginstall
 }
 
 pkgclean () {
@@ -123,6 +129,15 @@ importgen() {
     printf "$d.tgz in /tmp/export\n"
 }
 
+importsend() {
+    [ ! "$cvmls" ] && printf 'Destinations not set, export a '"'cvmls'\n" && return
+    u=${1:-admin}
+    cd /tmp/export
+    for i in $cvmls; do
+        scp *.tgz $u@$i:/tmp/pkg/
+    done
+    cd -
+}
 
 export rsc=`sudo cat /var/lib/floodlight/recovery/recovery.json | sed -n 's| *"cookie" : "\(.*\)",|\1| p'`
 export fsc=$FL_SESSION_COOKIE
