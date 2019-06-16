@@ -3,6 +3,7 @@
 
 JPATH=/usr/share/floodlight/java
 
+
 pkgpatch () {
     if [ "$1" = "-h" ]; then
         printf '%s\n' 'patchjar' \
@@ -19,16 +20,16 @@ pkgpatch () {
     while read l; do
         c=${l##*/}
         p=${l%$c}
-        [ -e "./src/$l" ] && org="$(md5sum ./src/$l)"
+        [ -e "$l" ] && org="$(md5sum $l)"
         if [ "$c" -a "$p" ]; then
-            [ "$p" -a ! -d ./src/$p ] && mkdir -p ./src/$p
-            cp ./imports/$c ./src/$p
+            [ "$p" -a ! -d $p ] && sudo mkdir -p $p
+            sudo cp ./imports/$c $p
         fi
         if [ "$org" ]; then
-            printf 'replaced file:\n\t%s %s\n\t%s %s\n' $org "$(md5sum ./src/$l)" && \
+            printf 'replaced file:\n\t%s %s\n\t%s %s\n' $org "$(md5sum $l)" && \
             unset org
         else
-            printf '%s\n' "added file: ./src/$l"
+            printf '%s\n' "added file: $l"
         fi
     done < ./imports/PLIST
 }
@@ -98,7 +99,7 @@ importgen() {
         printf '%s\n' 'importgen <relative commit>' \
                       '' \
                       'e.g: importgen HEAD~2' \
-                      'relative commit defaults to HEAD~1.'
+                      'relative commit defaults to HEAD.'
         return
     fi
 
@@ -112,16 +113,31 @@ importgen() {
         printf "Not a package, or one that hasn't been compiled\n" && \
         return
 
-    c=${1:-HEAD~1}
+    c=${1:-HEAD}
     xd=/tmp/export/$d
     mkdir -p $xd
-    for f in $(git diff --name-only $c | \
-               sed -e 's:.*java/\(org.*\).java:\1.class:' \
-                   -e 's:.*resources/\(.*\):\1:'); do
-        if [ -e "target/classes/$f" ]; then
-            cp target/classes/$f $xd
-            printf '%s\n' $f >> $xd/PLIST
-        fi
+    for f in $(git diff --name-only $c --relative); do
+        fn=${f##*/}     #filename
+        td=${f%$fn}     #file directory
+        td=${td##*main/java/}
+        sn=${fn##*.}    #file suffix
+        case $sn in
+            java)
+                bn=$(printf '%s\n' $fn | sed 's:\(.*\)\..*:\1:')
+                for t in $(find ./target/classes/$td -name $bn*class); do
+                    cp $t $xd
+                    printf './src/%s\n' ${t##./target/classes/} >> $xd/PLIST
+                done
+                ;;
+            py)
+                cp $f $xd
+                printf '/usr/share/floodlight/%s\n' ${f##*main/python/} >> $xd/PLIST
+                ;;
+            yang|manifest|properties)
+                cp $f $xd
+                printf './src/%s\n' ${f##*main/resources/} >> $xd/PLIST
+                ;;
+        esac
     done
     cd $xd
     tar -czf ../$d.tgz *

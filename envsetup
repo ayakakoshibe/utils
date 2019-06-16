@@ -23,7 +23,7 @@ ROOT=/tmp
 ln -fs /usr/share/floodlight $HOME/fl
 ln -fs $HOME/fl/java $HOME/java
 ln -fs $HOME/fl/cli/desc/version200 $HOME/cmd
-ln -fs $HOME/fl/upgrade-utils $HOME/upg
+ln -fs $HOME/fl/sysutils $HOME/sys
 
 geninfo() {
    printf 'PKGNAME=%s\n' $(ls $1/jar/) > $1/INFO
