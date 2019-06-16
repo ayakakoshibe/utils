@@ -1,0 +1,89 @@
+CONFIG 1.0 5.2.0-alpha bcf/master 13632
+core/aaa/local-user
+[{"full-name": "Default admin", "password": "method=PBKDF2WithHmacSHA512,salt=1XLBUY4IsfwEcDXrumBQaw,rounds=25000,ph=true,BYAXkeKBoWWf7-GxM-plBaIfSpS_MgQGk9QsYG0Xd_nrP6ee486VcP6j86WhPYrEdCBvQUOl8WQy3Ph64x-r3Q", "ssh-authorized-key": [{"key-body": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYaknGRyz/ncIajInQyVTy6SAYtOEAwzKWlfvQvg/pg9jF0i7Grp1ItXg6qgt4CvfgBEEvJIk2g00okFbF/Sypb75kVH5nmKPNW6yQBWxzTeSSRxtdnCMVAAeOU+26tn32QcO94ajKIftkXbBhJA2HR6d0elDK05XAK9PB5nLHxLFwO9E9/ht7WRfCkj3QS+rvlgUtbDIrGbhenx4Wd/RPgsfJ4A6na7+G1BoSM+lKLx8kOcGMxoXHMzzQI9fpus96Ue+tcZMa7FWdzUzVvfZjr4KET+v36mjS6lswDXugUlM8C+F0/UA2SSvQ+JJxHMf06lLwvjHzhAN+MLsEzfyB", "name": "test@env16"}, {"key-body": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUw1wtAbf6j6zngtVOnCRYkDXenydLTxNRIaskGZ9mGI4fDCh36Y3YmyoN2SDpDXz7X020G6HQ2QiZmSLLM3ozbJlRFKqOrHkuHBIEpByZiVvfAN8gOTyiak+M6iLeOORpwgQovUvoCxAvJyHTt86ti5i+3DkPQr/LCqtA6PF9CVyAnQMJSoOSnKd5N7lw6Mac/J1BuioZ3VVY5JDNcx9aeK3Dm/JdRaVsCx2JKeW6pe98zYT1tumaMOSRG30n7TuMD7hEi5MbCOfinxx4DJ8K9dBbtYhMxFrdAmnokddPE4s1uKui8YSad6p/wAQ04Uozox1yxo0Gru/oEhWhzBLV", "name": "test@env1604"}], "user-name": "admin"}]
+os/config/local
+[{"network": {"hostname": "AK-HardcoreMontalcini-C1", "interface": [{"ipv4": {"method": "auto", "routing": {"default-route-policy": "ok"}}, "ipv6": {"method": "manual", "routing": {"default-route-policy": "ok"}}, "name": "management"}]}}]
+core/tls/config
+[{"mode": "off"}]
+core/aaa radius
+[{"radius": {"auth-protocol": "pap", "default": {"acct-port": 1813, "auth-port": 1812, "timeout": 5}}}]
+core/zerotouch/hcl
+[{}]
+core/aaa/group
+[{"name": "admin", "user": ["admin"]}]
+os/config/global login-banner
+[]
+core/aaa authentication
+[{"authentication": {"order": "local-only"}}]
+core/aaa accounting
+[{"accounting": {"order": "local-only"}}]
+core/aaa authorization
+[{"authorization": {"order": "local-only"}}]
+core/aaa/session-config
+[{"expire-after-access": 120}]
+core/aaa tacacs
+[{"tacacs": {"default": {"timeout": 5}}}]
+os/config/global/snmp
+[{"trap-enabled": false}]
+os/config/global/snmp-trap
+[{}]
+core/zerotouch/snmp
+[{"trap": {"auth-fail": false}}]
+cluster
+[{"description": "CVML Task 17324", "name": "CVML-Cluster"}]
+os/config/global virtual-ip
+[{}]
+core/controller/dump-messages
+[{"enabled": false}]
+core/service-address
+[{"access-control": {"access-list": [{"name": "api", "rule": [{"action": "permit", "id": 1, "source": "::/0"}, {"action": "permit", "id": 2, "source": "0.0.0.0/0"}]}, {"name": "gui", "rule": [{"action": "permit", "id": 1, "source": "::/0"}, {"action": "permit", "id": 2, "source": "0.0.0.0/0"}]}, {"name": "ns-api", "rule": [{"action": "permit", "id": 1, "source": "::/0"}, {"action": "permit", "id": 2, "source": "0.0.0.0/0"}]}, {"name": "snmp"}, {"name": "ssh", "rule": [{"action": "permit", "id": 1, "source": "::/0"}, {"action": "permit", "id": 2, "source": "0.0.0.0/0"}]}, {"name": "vce-api", "rule": [{"action": "permit", "id": 1, "source": "::/0"}, {"action": "permit", "id": 2, "source": "0.0.0.0/0"}]}]}}]
+os/config/global/tls-consumer
+[{}]
+os/config/global/httpd
+[{}]
+os/config/global/ssh
+[{}]
+applications/bcf/global-setting
+[{"enable-endpoint-flap-protection": false, "forwarding-mode": "auto-select", "gtp-hash": false, "learn-during-upgrade": false, "pod-role": "leaf", "qos": {"enable": false, "mode": "segment"}, "send-icmp-destination-unreachable": true, "switch-bandwidth-mode": "switch-default", "vlan-mapping": "default"}]
+core/switch-ip-alloc
+[{"enabled": false}]
+os/config/global/time
+[{"ntp-server": [{"server": "0.bigswitch.pool.ntp.org"}, {"server": "1.bigswitch.pool.ntp.org"}, {"server": "2.bigswitch.pool.ntp.org"}, {"server": "3.bigswitch.pool.ntp.org"}], "time-zone": "UTC"}]
+applications/bcf/nat-pool
+[{}]
+applications/bcf/mac-member-rule-attachment-point-pool
+[{}]
+applications/vendor/vmware/nsxt
+[]
+applications/vendor/vmware/nsx
+[]
+applications/bcf/vxlan-termination
+[{"incoming-udp-dst-port": 4789, "l2-only": false, "leaf-group": "all", "outgoing-default-udp-dst-port": 4789}]
+applications/bcf/analytics-node
+[{}]
+os/config/global/logging
+[{"controller-enabled": true, "remote-enabled": true, "tls": {"tls-enabled": false}}]
+os/config/global/log-level
+[]
+applications/bcf/filter-profile
+[]
+applications/bcf/sflow
+[{"active": false, "counter-interval": 20, "max-header-size": 128}]
+core/switch-config
+[]
+applications/bcf/span-local
+[]
+applications/bcf/span-fabric
+[]
+applications/bcf/interface-group
+[]
+applications/bcf/storm-control-profile
+[]
+applications/bcf/tenant
+[]
+applications/vendor/vmware/vcenter
+[]
+applications/vendor/nutanix/prism-server
+[]
+applications/vendor/chassis/chassis-manager
+[]
