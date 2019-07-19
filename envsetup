@@ -26,7 +26,8 @@ ln -fs $HOME/fl/cli/desc/version200 $HOME/cmd
 ln -fs $HOME/fl/sysutils $HOME/sys
 
 geninfo() {
-   printf 'PKGNAME=%s\n' $(ls $1/jar/) > $1/INFO
+    printf 'PKGNAME=%s\n' $(ls $1/jar/) > $1/INFO
+    printf 'PKGSRC=%s\n' $1.tgz >> $1/INFO
 }
 
 cd $ROOT
@@ -34,7 +35,8 @@ cd $ROOT
 # floodlight-core-51.0.0-master-SNAPSHOT.jar
 # the "core" is the application name to use for the tree, added below.
 mkdir -p pkg/appliance-package \
-         pkg/core
+         pkg/core \
+         pkg/flos3
 
 cd pkg
 for i in *; do

@@ -18,6 +18,7 @@ pkgpatch () {
     local org
 
     while read l; do
+        l=$1$l
         c=${l##*/}
         p=${l%$c}
         [ -e "$l" ] && org="$(md5sum $l)"
@@ -43,6 +44,8 @@ pkgextract () {
         printf 'Not in a jar directory\n' && \
         return
 
+    . INFO
+    mv ../$PKGSRC ./imports/
     tar -xzf ./imports/*.tgz -C ./imports/
     [ "$1" = "patch" ] && pkgpatch
 }
@@ -68,7 +71,6 @@ pkgjar () {
     cd ./src
     jar cvmf META-INF/MANIFEST.MF ../$PKGNAME *
     cd -
-    unset PKGNAME
     [ "$1" = "install" ] && pkginstall
 }
 
@@ -96,7 +98,7 @@ pkgclean () {
 
 importgen() {
     if [ "$1" = "-h" ]; then
-        printf '%s\n' 'importgen <relative commit>' \
+        printf '%s\n' 'importgen <relative commit> [install_base]' \
                       '' \
                       'e.g: importgen HEAD~2' \
                       'relative commit defaults to HEAD.'
@@ -115,7 +117,9 @@ importgen() {
 
     c=${1:-HEAD}
     xd=/tmp/export/$d
+    rm -rf $xd
     mkdir -p $xd
+    touch $xd/PLIST
     for f in $(git diff --name-only $c --relative); do
         fn=${f##*/}     #filename
         td=${f%$fn}     #file directory
@@ -136,6 +140,9 @@ importgen() {
             yang|manifest|properties)
                 cp $f $xd
                 printf './src/%s\n' ${f##*main/resources/} >> $xd/PLIST
+                ;;
+            *)
+                cp $f $xd
                 ;;
         esac
     done
@@ -165,3 +172,5 @@ alias ..='cd ../'
 
 alias fcli="floodlight-cli -Xm internal"
 alias mnt2="sudo mount /dev/flvg/root2 /mnt"
+alias rstfl="sudo systemctl restart floodlight"
+alias tailfl="tail -f /var/log/floodlight/floodlight.log"
