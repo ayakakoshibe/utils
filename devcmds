@@ -165,16 +165,16 @@ importsend() {
 fltrace() {
     [ -z "$1" ] && printf 'Need outfile\n'
     flp=$(pgrep -a java | sed -ne 's|\([1-9][0-9]\{1,\}\) .*org.projectfloodlight.core.Main -cf.*|\1| p')
-    sudo strace -qfp $flp 2>&1 | grep -v [ef][pu][ot][le][lx] | grep -v restart_syscall  | grep -v getrusage > $1
+    sudo strace -qfp $flp -s 256 2>&1 | grep -v [ef][pu][ot][le][lx] | grep -v restart_syscall  | grep -v getrusage > $1
 }
 
 imgcp() {
     [ -z "$1" ] && printf 'Need URL\n'
     local n
     n=${1##*/}
-    cd /image/cli/tmp
+    cd /images/cli/tmp
     wget $1
-    mv $n ../upgrade/$(sha256sum $n | awk '{print $1}')
+    mv $n /images/cli/upgrade/$(sha256sum $n | awk '{print $1}')
     cd -
 }
 
