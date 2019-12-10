@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import json
+import os
+import sys
+
+from collections import OrderedDict
+
+
+LISTS = ("group", "local-user", "switch-config", "interface-group")
+
+
+def _data_in(data, key, select=None):
+	data = [el.get(select) if select else el for el in data]
+        if key in LISTS or len(data) > 1:
+            return data
+        else:
+            return data[0]
+
+
+def _merge(tree, steps, data):
+	if not steps:
+		return
+	if len(steps) == 1:
+                cur = steps[0].split()  # path may have select element
+                ept = cur[0]
+		select = cur[1] if len(cur) == 2 else None # one more path step
+                data = _data_in(data, ept, select)
+                if select:
+                    endp = tree.get(ept, {})
+                    endp[select] = data
+                    tree[ept] = endp
+                else:
+		    tree[ept] = data
+		return
+	else:
+		cur = steps[0]
+		nex = steps[1:]
+		if cur not in tree:
+			tree[cur] = {}
+		_merge(tree[cur], nex, data)
+
+
+def main(fd):
+	r = OrderedDict()		# conf tree
+	p = fd.readline().strip()	# path
+	d = fd.readline().strip()	# data
+	while p and d:
+		if p == '':	# already one tree
+			return
+		if d in ('[]', '{}', '[{}]'):
+			p = fd.readline().strip()
+			d = fd.readline().strip()
+			continue
+		data = json.loads(d, object_pairs_hook=OrderedDict)
+
+		parts = p.split('/')
+		_merge(r, parts, data)
+		p = fd.readline().strip()
+		d = fd.readline().strip()
+
+	return [r]
+
+
+if __name__ == "__main__":
+	if len(sys.argv) <= 1:
+		print "must specify snapshot"
+		sys.exit(1)
+	f = sys.argv[1]
+
+	with open(f) as fd:
+		print fd.readline()
+                print json.dumps(main(fd), separators=(',', ':'))

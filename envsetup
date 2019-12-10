@@ -25,6 +25,8 @@ ln -fs $HOME/fl/java $HOME/java
 ln -fs $HOME/fl/cli/desc/version200 $HOME/cmd
 ln -fs $HOME/fl/sysutils $HOME/sys
 
+ln -fs /usr/lib/python3/dist-packages/flos3 $HOME/flos
+
 geninfo() {
     printf 'PKGNAME=%s\n' $(ls $1/jar/) > $1/INFO
     printf 'PKGSRC=%s\n' $1.tgz >> $1/INFO
