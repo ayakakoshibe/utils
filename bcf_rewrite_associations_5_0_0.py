@@ -5,7 +5,9 @@
 #
 # replace the bcf_5_0_vxlan_termination of the system with the one here
 # and the redir_bcf_5_0_vxlan_termination that gets invoked later as a
-# retry.
+# retry. For some reason, the position of the method is important, and
+# the replacement should be placed where the original is. This seems
+# shady.
 #
 # To trigger additions:
 #
